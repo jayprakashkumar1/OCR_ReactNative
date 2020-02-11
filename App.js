@@ -5,19 +5,22 @@
  * @format
  * @flow
  */
-
 import { createStackNavigator, createAppContainer } from 'react-navigation';
 import HomeScreen from './HomeScreen';
 import RNTextDetector from './RNTextDetector';
-import Camera from './camera';
+import camera from './ camera';
 import gallery from './gallery';
+import Edit from './Edit';
+import MyForm from './MyForm';
 
 const AppNavigator = createStackNavigator(
   {
     Home: HomeScreen,
     RNTextDetector: RNTextDetector,
-    Camera: Camera,
+    camera: camera,
     gallery: gallery,
+    Edit:Edit,
+    MyForm:MyForm
   },
   {
     initialRouteName: 'Home'

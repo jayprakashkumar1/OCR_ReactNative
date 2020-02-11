@@ -4,7 +4,7 @@
  *
  * @format
  * @flow
- */
+ */  
 
 import firebase from 'react-native-firebase';
 import React from 'react';
@@ -13,9 +13,9 @@ import { RNCamera as Camera } from 'react-native-camera';
 import RNTextDetector from "react-native-text-detector";
 import style, { screenHeight, screenWidth } from "./styles";
 import cloneDeep from 'lodash/cloneDeep';
-//import CameraRollPicker from 'react-native-camera-roll-picker';
+//import CameraRollPicker from 'react-native-camera-roll-picker'; 
 
-const PICTURE_OPTIONS = {
+const PICTURE_OPTIONS = { 
   quality: 1,
   fixOrientation: true,
   forceUpOrientation: true,
@@ -30,7 +30,10 @@ export default class camera extends React.Component {
     eachLine: [],
     newVisionResp: [],
     selectResult: [],
-    style: []
+    style: [],
+    allText: "",
+    yyyy:  console.log("camera screen"),
+
   };
 
   reset(error = "OTHER") {
@@ -79,7 +82,8 @@ export default class camera extends React.Component {
   processImage = async (uri, imageProperties) => {
     visionResp = await RNTextDetector.detectFromUri(uri);
     if (!(visionResp && visionResp.length > 0)) {
-      throw "UNMATCHED";
+      // throw "UNMATCHED";
+      alert("No Character Recognized from Camera Image");
     }
     this.setState({
       visionResp: this.mapVisionRespToScreen(visionResp, imageProperties)
@@ -119,7 +123,15 @@ export default class camera extends React.Component {
       }
     };
     visionResp = this.state.eachLine.concat(visionResp);
-    console.log(visionResp);
+    // console.log(visionResp);
+
+    var  allText = "";
+    visionResp.map(eachText =>{allText = allText + eachText.text + "\n"}); 
+   
+  //  Alert.alert("From CAMERA : " + allText);
+   this.setState({allText:allText});
+  
+   console.log(this.state.allText);
 
     return visionResp.map(item => {
       return {
@@ -242,17 +254,19 @@ export default class camera extends React.Component {
 
   submitSelect = () => {
     this.props.navigation.navigate('RNTextDetector', {
-      text: this.state.selectResult
+      text: this.state.selectResult,
+      allText:this.state.allText,
+
     });
   };
 
   static navigationOptions = ({ navigation }) => {
     return {
-      headerTitle: "React Native Text Detector camera",
+      headerTitle: "OCR camera",
       headerRight: (
         <Button
           onPress={navigation.getParam('submitSelect')}
-          title="submit">
+          title="   OK   ">
         </Button>
       ),
     };

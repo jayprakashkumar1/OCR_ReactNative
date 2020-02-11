@@ -7,39 +7,52 @@
  */
 import firebase from 'react-native-firebase';
 import React from 'react';
-import { Text, View, Button, PermissionsAndroid, Platform } from 'react-native';
+import { Text, View, Button, PermissionsAndroid, Platform,SafeAreaView,ScrollView } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
+import {Dimensions } from "react-native";
+
 import styles from './styles';
 
-
 export default class RNTextDetectorHomeScreen extends React.Component {
+
   state = {
     imageText: [],
-    result: ""
+    result: "",
+    wholeText: this.props.navigation.getParam('allText',''),
+    temp:""
   }
-
 
   async requestReadPermissionGallery() {
     try {
+      console.log("Open Gallery button clicked");
+
       const os = Platform.OS; // android or ios
       if (os === 'android') {
         const granted = await PermissionsAndroid.request(
           PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE
         );
         if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          // 已獲取了讀寫權限
-          this.props.navigation.navigate('gallery');
+          this.props.navigation.navigate('gallery',{
+        }
+          );
           this.getPhotos();
         } else {
           alert("Permissions Fail");
-          // 獲取讀寫權限失敗
         }
       }
     } catch (err) {
       console.log(err.toString());
     }
   }
+  handleTextInput = (text) => {
+    // this.setState({wholeText: text })
 
+      // REMOVE white spaces from each line 
+
+    this.state.wholeText = text;
+    // console.log(this.state.wholeText);
+    // alert(this.state.wholeText);
+ }
   componentDidMount() {
     const unitId =
       Platform.OS === 'ios'
@@ -55,8 +68,11 @@ export default class RNTextDetectorHomeScreen extends React.Component {
       advert.show();
     });
   }
-
+ 
   render() {
+    var screenWidth = Math.round(Dimensions.get('window').width);
+    var screenHeight = Math.round(Dimensions.get('window').height);
+
     const Banner = firebase.admob.Banner;
     const AdRequest = firebase.admob.AdRequest;
     const request = new AdRequest();
@@ -67,31 +83,106 @@ export default class RNTextDetectorHomeScreen extends React.Component {
         : 'ca-app-pub-6806282339237533/1168663826';
         
     const imageText = this.props.navigation.getParam('text', '');
-    console.log("image text = ", imageText);
+    
+    const allText = this.props.navigation.getParam('allText','');
 
-    this.state.result = "";
-    for (let i = 0; i < imageText.length; i++) {
-      this.state.result += imageText[i] + '\n';
-    }
+    // this.setState({wholeText:"TESTING1 " + allText});
+
+    this.state.wholeText = allText;
+
+    console.log("image text1 = ", imageText);
+    // alert("wholetext from submit1 = " + imageText);
+
+    // console.log("image text2 = ", allText);
+    // alert("wholetext from submit2 = " + allText);
+
+    // this.state.result = "";
+    // for (let i = 0; i < imageText.length; i++) {
+    //   this.state.result += imageText[i] + '\n';
+    // }
 
     console.log("RNTextDetector render ");
+
     return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <Text>Home Screen</Text>
-        <TextInput
-          style={{ borderColor: 'gray', borderWidth: 1, width: 250 }}
-          value={this.state.result}
-          multiline={true} />
+      
+    // <SafeAreaView style={styles.container}>
+    // <ScrollView horizontal bounces={false}>
 
-        <Button
-          title="open camera"
-          onPress={() => this.props.navigation.navigate('Camera')}
-        />
+    //   <ScrollView style={styles.scrollView} alwaysBounceHorizontal={true}  nestedScrollEnabled
+    //     bounces={false}>
+        
+    //     <Text>Home Screen.</Text> 
+    //     <TextInput
+    //       style={{ borderColor: 'gray', borderWidth: 1, width: '99%', }}
+    //       // value={this.state.result}
+          
+    //       // value = {this.state.temp}
+    //       onChangeText = {this.handleTextInput.bind(this)}
+    //       value = {this.state.wholeText}
+    //       multiline={true} 
+    //     />
 
-        <Button
-          title="open gallery"
-          onPress={this.requestReadPermissionGallery.bind(this)}
-        />
+    //   </ScrollView>
+    //   </ScrollView>
+
+    <SafeAreaView style={styles.container}>
+            <Text>Home Screen</Text>
+
+            <View style={{flex:0.7,width:screenWidth-20,margin:10,borderWidth:2,borderColor:'green'}}>
+              <ScrollView syle = {{ marginHorizontal: 10,}} horizontal bounces={false}>
+              <ScrollView style={styles.scrollView} vertical alwaysBounceHorizontal={false}  nestedScrollEnabled
+                  bounces={false}>   
+       
+            <TextInput style={{fontSize:20,padding:10,borderWidth:2,borderColor:'red',
+                              width:'90%'}}  
+                multiline={true} 
+                editable
+                // value = {this.state.editableText}
+                // onChangeText={text => onChangeText(text)}
+                // value = {value}
+                value = {this.state.wholeText}
+                onChangeText = {this.handleTextInput.bind(this)}
+            />
+              </ScrollView>
+              </ScrollView>
+            </View>
+
+
+            {/* onChangeText = {this.handleTextInput.bind(this)} */}
+                {/* value = {this.state.wholeText} */}
+{/* 
+    <Text>
+        {"\n"}
+      </Text> */}
+
+        <View style={{ flex: 0.3, alignItems: 'center', justifyContent: 'center' }}>
+
+            <Button
+            title="Edit"
+            onPress={() => this.props.navigation.navigate('Edit',{allText:this.state.wholeText})}
+            />
+        </View>
+
+      <View style={{
+        flexDirection:'row',
+        flex:1,justifyContent: 'space-around'}}>
+
+       <View style={{width: 120, height: 70}} >
+          <Button
+            title="open camera"
+            onPress={() => this.props.navigation.navigate('camera')}
+          />
+        </View>
+
+        <View style={{width: 120, height: 70}}>  
+          <Button
+            title="open gallery"
+            onPress={this.requestReadPermissionGallery.bind(this)}
+          />
+        </View>
+    
+        </View>
+
         <Banner
           style={{position: 'absolute',bottom:0 }}
           unitId={unitId}
@@ -101,11 +192,19 @@ export default class RNTextDetectorHomeScreen extends React.Component {
             console.log('Advert loaded');
           }}
         />
-      </View>
+     
+     
+    </SafeAreaView>
+ 
     );
   }
 }
 
 RNTextDetectorHomeScreen.navigationOptions = {
-  title: 'React Native Text Detector',
+  title: 'Home',
+  headerTintColor: 'white',
+  headerStyle: {
+    backgroundColor: 'royalblue'
+    
+ }
 };

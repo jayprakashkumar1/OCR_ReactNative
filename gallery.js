@@ -16,14 +16,17 @@ import cloneDeep from 'lodash/cloneDeep';
 export default class gallery extends Component {
   constructor(props) {
     super(props);
+    console.log("Gallery screen");
+    
     this.state = {
       selected: [],
       loading: false,
-      image: null,
+      image: null, 
       visionResp: [],
       eachLine: [],
       newVisionResp: [],
-      selectResult: []
+      selectResult: [],
+      allText: "",
     }
     this.getSelectedImages = this.getSelectedImages.bind(this);
   }
@@ -67,7 +70,8 @@ export default class gallery extends Component {
   processImage = async (uri, imageProperties) => {
     visionResp = await RNTextDetector.detectFromUri(uri);
     if (!(visionResp && visionResp.length > 0)) {
-      throw "UNMATCHED";
+      // throw "UNMATCHED";
+      alert("No Character Recognized from Gallery Image");
     }
     this.setState({
       visionResp: this.mapVisionRespToScreen(visionResp, imageProperties)
@@ -109,7 +113,17 @@ export default class gallery extends Component {
       }
     }
     visionResp = this.state.eachLine.concat(visionResp);
-    console.log(visionResp);
+
+    // console.log(visionResp);
+  
+   var  allText = "";
+     visionResp.map(eachText =>{allText = allText + eachText.text + "\n"}); 
+    
+   // Alert.alert(allText);
+    this.setState({allText:allText});
+   
+    console.log(this.state.allText);
+
     return visionResp.map(item => {
       return {
         ...item,
@@ -213,23 +227,24 @@ export default class gallery extends Component {
   
     advert.on('onAdLoaded', () => {
       console.log('Advert ready to show.');
-      advert.show();
+      advert.show(); 
     });
   }
 
   submitSelect = () => {
     this.props.navigation.navigate('RNTextDetector', {
-      text: this.state.selectResult
+      text: this.state.selectResult,
+      allText:this.state.allText,
     });
   };
 
   static navigationOptions = ({ navigation }) => {
     return {
-      headerTitle: "React Native Text Detector camera",
+      headerTitle: "OCR Gallery",
       headerRight: (
         <Button
           onPress={navigation.getParam('submitSelect')}
-          title="submit">
+          title="   OK   ">
         </Button>
       ),
     };
